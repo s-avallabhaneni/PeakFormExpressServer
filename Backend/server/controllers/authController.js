@@ -45,7 +45,7 @@ exports.decodeToken = (req, res) => {
   const { token } = req.body;
 
   try {
-    const decoded = jwt.decode(token); 
+    const decoded = jwt.verify(token, JWT_SECRET); 
 
     if (!decoded) {
       return res.status(400).json({ message: 'Invalid token' });
