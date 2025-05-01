@@ -41,3 +41,21 @@ exports.login = async (req, res) => {
 };
 
 
+exports.decodeToken = (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const decoded = jwt.decode(token); 
+
+    if (!decoded) {
+      return res.status(400).json({ message: 'Invalid token' });
+    }
+
+    
+    res.json({ decoded });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
