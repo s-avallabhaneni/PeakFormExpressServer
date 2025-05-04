@@ -1,7 +1,13 @@
 const pool = require('../db');
 
 exports.createFeedback = async (req, res) => {
-    const { userId, formScore, stabilityScore, controlScore } = req.body;
+    const {userId} = req.params;
+    const {formScore, stabilityScore, controlScore } = req.body;
+
+    if (req.user.userId !== parseInt(userId)) {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
     try {
         const result = await pool.query(
             'INSERT INTO workout_feedback (user_id, form_score, stability_score, control_score) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -15,6 +21,10 @@ exports.createFeedback = async (req, res) => {
 
 exports.deleteFeedback = async (req, res) => {
     const { id } = req.params;
+
+    if (req.user.userId !== parseInt(userId)) {
+        return res.status(403).json({ message: 'Access denied' });
+    }
   
     try {
       const result = await pool.query(

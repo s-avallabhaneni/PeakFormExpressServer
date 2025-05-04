@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const feedbackController = require('../controllers/workoutFeedbackController');
 
-router.post('/feedback', feedbackController.createFeedback);
-router.delete('/feedback/:id', feedbackController.deleteFeedback);
+router.post('/users/:userId/feedback', verifyToken, feedbackController.createFeedback);
+router.delete('/feedback/:id', verifyToken, feedbackController.deleteFeedback);
 
 module.exports = router;
