@@ -42,3 +42,25 @@ exports.deleteFeedback = async (req, res) => {
       res.status(500).json({ error: "Server error while deleting feedback" });
     }
   };
+
+  exports.getFeedbacksByUser = async (req, res) => {
+    const { userId } = req.params;
+
+    if (req.user.userId !== parseInt(userId)) {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    if (req.user.userId !== parseInt(userId)) {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    try {
+        const result = await pool.query(
+            'SELECT * FROM workout_feedback WHERE user_id = $1 ORDER BY created_at DESC',
+            [userId]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
