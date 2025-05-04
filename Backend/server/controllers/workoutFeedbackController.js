@@ -1,11 +1,11 @@
 const pool = require('../db');
 
 exports.createFeedback = async (req, res) => {
-    const { formScore, stabilityScore, controlScore } = req.body;
+    const { userId, formScore, stabilityScore, controlScore } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO workout_feedback (form_score, stability_score, control_score) VALUES ($1, $2, $3) RETURNING *',
-            [formScore, stabilityScore, controlScore]
+            'INSERT INTO workout_feedback (user_id, form_score, stability_score, control_score) VALUES ($1, $2, $3, $4) RETURNING *',
+            [userId, formScore, stabilityScore, controlScore]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
