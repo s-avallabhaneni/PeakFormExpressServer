@@ -27,6 +27,17 @@ exports.getSetsForExercise = async (req, res) => {
     }
 };
 
+exports.getAllSets = async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM sets'
+        );
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 exports.deleteSet = async (req, res) => {
     const { setId } = req.params;
     try {
