@@ -11,6 +11,7 @@ const promptRoutes = require('./routes/prompts');
 const authRoutes = require('./routes/auth');
 const imageRoutes = require('./routes/images');
 const workoutFeedbackRoutes = require('./routes/workoutFeedback');
+const workoutDataRoutes = require('./routes/workoutData');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api', promptRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', imageRoutes);
 app.use('/api', workoutFeedbackRoutes);
+app.use('/api', workoutDataRoutes);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log(`Server running on http://localhost:${process.env.PORT || 5000}`);
