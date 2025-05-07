@@ -19,7 +19,6 @@ exports.getWorkoutData = async (req, res) => {
             'id', e.id,
             'name', e.name,
             'template_id', e.template_id,
-            'created_at', e.created_at,
             'sets', (
                 SELECT COALESCE(json_agg(
                 json_build_object(
@@ -27,7 +26,6 @@ exports.getWorkoutData = async (req, res) => {
                     'reps', s.reps,
                     'weight', s.weight,
                     'exercise_id', s.exercise_id,
-                    'created_at', s.created_at
                 )
                 ), '[]'::json)
                 FROM sets s
