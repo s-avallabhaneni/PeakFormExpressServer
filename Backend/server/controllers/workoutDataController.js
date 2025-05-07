@@ -2,49 +2,38 @@ const pool = require('../db');
 
 exports.getWorkoutData = async (req, res) => {
     const userId = req.params.userId;
-    
-    if (req.user.userId !== parseInt(userId)) {
-        return res.status(403).json({ message: 'Access denied' });
-    }
-
-    try {
-      const result = await pool.query(`
-        SELECT
-        t.id AS template_id,
-        t.name AS template_name,
-        t.user_id,
-        t.created_at AS template_created_at,
-        COALESCE(json_agg(
-            json_build_object(
-            'id', e.id,
-            'name', e.name,
-            'template_id', e.template_id,
-            'sets', (
-                SELECT COALESCE(json_agg(
-                json_build_object(
-                    'id', s.id,
-                    'reps', s.reps,
-                    'weight', s.weight,
-                    'exercise_id', s.exercise_id,
-                )
-                ), '[]'::json)
-                FROM sets s
-                WHERE s.exercise_id = e.id
-            )
-            )
-        ) FILTER (WHERE e.id IS NOT NULL), '[]'::json) AS exercises
-        FROM templates t
-        LEFT JOIN exercises e ON e.template_id = t.id
-        WHERE t.user_id = $1
-        GROUP BY t.id
-        ORDER BY t.created_at DESC;
-    
-      `, [userId]);
   
-      res.json(result.rows);
+    try {
+      // 1. Get all templates for this user
+      const templatesResult = await pool.query(
+        'SELECT * FROM templates WHERE user_id = $1',
+        [userId]
+      );
+      const templates = templatesResult.rows;
+  
+      // 2. For each template, get exercises and sets
+      for (const template of templates) {
+        const exercisesResult = await pool.query(
+          'SELECT * FROM exercises WHERE template_id = $1',
+          [template.id]
+        );
+        const exercises = exercisesResult.rows;
+  
+        for (const exercise of exercises) {
+          const setsResult = await pool.query(
+            'SELECT * FROM sets WHERE exercise_id = $1',
+            [exercise.id]
+          );
+          exercise.sets = setsResult.rows;
+        }
+  
+        template.exercises = exercises;
+      }
+  
+      return res.json(templates);
     } catch (err) {
-      console.error('Error in getWorkoutTree:', err);
-      res.status(500).json({ error: 'Server error' });
+      console.error(err);
+      res.status(500).json({ error: 'Server error fetching workout tree.' });
     }
   };
   
