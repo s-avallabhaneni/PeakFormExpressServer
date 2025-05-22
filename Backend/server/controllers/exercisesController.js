@@ -32,7 +32,14 @@ exports.updateExercise = async (req, res) => {
     const {name} = req.body;
     
     try {
-        
+        const result = await pool.query (
+            'UPDATE exercises SET name = $1 WHERE id = $2 RETURNING *',
+            [name, exerciseId]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ message: 'Exercise not found' });
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 }
 
