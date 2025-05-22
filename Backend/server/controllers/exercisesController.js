@@ -27,6 +27,15 @@ exports.getExercisesForTemplate = async (req, res) => {
     }
 };
 
+exports.updateExercise = async (req, res) => {
+    const {exerciseId} = req.params;
+    const {name} = req.body;
+    
+    try {
+        
+    }
+}
+
 exports.deleteExercise = async (req, res) => {
     const { exerciseId } = req.params;
     try {
