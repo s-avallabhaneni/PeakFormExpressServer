@@ -4,6 +4,7 @@ const setsController = require('../controllers/setsController');
 
 router.post('/exercises/:exerciseId/sets', setsController.createSet);
 router.get('/exercises/:exerciseId/sets', setsController.getSetsForExercise);
+router.put('/sets/:setId', setsController.updateSet);
 router.delete('/sets/:setId', setsController.deleteSet);
 
 module.exports = router;

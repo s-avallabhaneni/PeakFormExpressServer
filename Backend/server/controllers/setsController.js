@@ -27,6 +27,22 @@ exports.getSetsForExercise = async (req, res) => {
     }
 };
 
+exports.updateSet = async (req, res) => {
+    const {setId} = req.params;
+    const {reps, weight} = req.body;
+    
+    try {
+        const result = await pool.query (
+            'UPDATE sets SET reps = $1, weight = $2 WHERE id = $3 RETURNING *',
+            [reps, weight, setId]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ message: 'Set not found' });
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 exports.deleteSet = async (req, res) => {
     const { setId } = req.params;
     try {
