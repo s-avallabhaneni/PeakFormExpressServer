@@ -56,47 +56,47 @@ exports.deleteExercise = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 
-    exports.createExerciseWithSets = async (req, res) => {
-        const { templateId } = req.params;
-        const { name, sets } = req.body;
 
-        const client = await pool.connect();
-        try {
-            await client.query('BEGIN');
+};
+exports.createExerciseWithSets = async (req, res) => {
+    const { templateId } = req.params;
+    const { name, sets } = req.body;
 
-            // Create the exercise
-            const exerciseResult = await client.query(
-                'INSERT INTO exercises (template_id, name) VALUES ($1, $2) RETURNING *',
-                [templateId, name]
-            );
-            const newExercise = exerciseResult.rows[0];
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
 
-            // Create each set linked to the new exercise
-            const insertSetQuery = `
+        // Create the exercise
+        const exerciseResult = await client.query(
+            'INSERT INTO exercises (template_id, name) VALUES ($1, $2) RETURNING *',
+            [templateId, name]
+        );
+        const newExercise = exerciseResult.rows[0];
+
+        // Create each set linked to the new exercise
+        const insertSetQuery = `
       INSERT INTO sets (exercise_id, reps, weight)
       VALUES ($1, $2, $3)
       RETURNING *;
     `;
 
-            const createdSets = [];
-            for (const set of sets) {
-                const setResult = await client.query(insertSetQuery, [
-                    newExercise.id,
-                    set.reps,
-                    set.weight
-                ]);
-                createdSets.push(setResult.rows[0]);
-            }
-
-            await client.query('COMMIT');
-            res.status(201).json({ exercise: newExercise, sets: createdSets });
-        } catch (err) {
-            await client.query('ROLLBACK');
-            console.error(err);
-            res.status(500).json({ error: err.message });
-        } finally {
-            client.release();
+        const createdSets = [];
+        for (const set of sets) {
+            const setResult = await client.query(insertSetQuery, [
+                newExercise.id,
+                set.reps,
+                set.weight
+            ]);
+            createdSets.push(setResult.rows[0]);
         }
-    };
 
+        await client.query('COMMIT');
+        res.status(201).json({ exercise: newExercise, sets: createdSets });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        client.release();
+    }
 };
